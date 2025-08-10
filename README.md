@@ -1,29 +1,30 @@
-# Rest-Booking-API-Testing-with-Postman-Newman
 
-### **Rest Booking API Testing with Postman Newman**
-This project demonstrates API testing using Postman, providing a collection of tests to validate various endpoints of the API. 
+# 🧪 Rest Booking API Testing with Postman & Newman
 
-### **Features**
+This project demonstrate automated API testing using **Postman** and **Newman**, for the Restful Booker API. It includes test cases, environment configurations, and detailed reporting using Newman’s HTML reporter.
 
-- Tests for GET, POST, PUT, DELETE requests
-- Collection of tests covering different API endpoints
-- Environment setup for easy switching between environments
-- Pre-request scripts for data setup
-- Test scripts for assertions and validations
+## 🚀 Features
 
-## API Documentation:
+- ✅ Tests for `GET`, `POST`, `PUT`, `DELETE` requests
+- 📁 Organized Postman collection and environment
+- 🔄 Pre-request scripts for dynamic data generation
+- 🧾 Test scripts for assertions and validations
+- 📊 HTML reports with enhanced visualization
 
-Restful Booker: https://restful-booker.herokuapp.com
-API documentation: https://restful-booker.herokuapp.com/apidoc/index.html
-- Postman Documentation: [[https://documenter.getpostman.com/view/13082503/2sA2xmUAJ1](https://documenter.getpostman.com/view/39619510/2sB3BEmpmr)]
-  
-### **Technology used:**
+## 📚 API Documentation
+
+- 🔗 ![Restful Booker API](https://restful-booker.herokuapp.com)
+- 📘 ![API Docs](https://restful-booker.herokuapp.com/apidoc/index.html)
+- 📄 ![Postman Documentation](https://documenter.getpostman.com/view/39619510/2sB3BEmpmr)
+
+## 🛠️ Technologies Used
+
 - Postman
-- Newman
+- ![Newman](https://www.npmjs.com/packagettps://www.npmjs.com/package/new# Node.js
+- !Node Js](https://nodejs.org/)
 
 ### **Prerequisite:**
 - Node Js
-- Newman
 - Newman Html Report Library
 
 ### **Installation**
@@ -31,7 +32,7 @@ API documentation: https://restful-booker.herokuapp.com/apidoc/index.html
 1. Postman: If you haven't already, [download and install Postman.](https://www.postman.com/downloads/)
 2. Clone the repository:
  ```console 
-  git clone https://github.com/ebrahimhossaincse/Automated-Testing-of-Rest-Booking-API-with-Newman-Report.git
+  git clone https://github.com/aiatulador/Rest-Booking-API-Testing-with-Postman-Newman.git
 ```
 3. Import the Postman collection:
     - Open Postman.
@@ -366,18 +367,33 @@ pm.environment.set("selectedNeed", update_selectedNeed);
 ### Request Method: DELETE
 ### Response Body: None 
 
-## Run Command:  
-- Run Command for Console:
-(Collection File Name with extention)  (Envirnoment file name with extention name)
-```console 
+
+## 🏃‍♂️ Run Command
+
+### 🔹 Run Command for Console
+
+
+#### Syntax: newman run <collection_file.json> -e <environment_file.json>
+```console
 newman run Rest-Booking-API.postman_collection.json -e Rest-Booking.postman_environment.json
 ```
-- Run Command for Report:
-(Collection File Name with extention)  (Envirnoment file name with extention name) -r htmlextra
-For iterartion count: --iteration-count (number)
-If add request delay: --delay-request (milisecond e.x.,1000)
-```console 
+
+### 🔹 Run Command for Report:
+
+#### Syntax: newman run <collection_file.json> -e <environment_file.json> --iteration-count <number> --delay-request <milliseconds> -r htmlextra
+
+```bash
 newman run Rest-Booking-API.postman_collection.json -e Rest-Booking.postman_environment.json --iteration-count 20 --delay-request 1000 -r htmlextra
 ```
 
-## Newman Report Summary:
+
+## 📊 Newman Report Summary
+
+After running the collection with the `htmlextra` reporter, a detailed HTML report is generated showing:
+
+- ✅ Test pass/fail status  
+- 📤 Request/response details  
+- 🧪 Assertions and logs  
+
+📁 **Example Report Screenshot**:  
+![Newman Summary Report](Reports/Screenshot%202025-08-10%20at%2011-08-28%20Newman%20Summary%20Report.png)
