@@ -1,0 +1,1406 @@
+{
+	"info": {
+		"_postman_id": "ab26644e-57c4-4100-90ce-9b5e21b8f088",
+		"name": "Rest-Booking-API",
+		"description": "## 👤 Author Info\n\n**Name:** Aiatul Al-amin Ador  \n**Email:** [aiatulador75@gmail.com](https://mailto:mdebrahimhossain.me@gmail.com)\n\n🙋‍♂️ Connect with Me\n\n🔗 [GitHub](https://github.com/aiatulador)  \n🔗 [LinkedIn](https://www.linkedin.com/in/aiatulador/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39619510",
+		"_collection_link": "https://www.postman.com/crimson-crescent-27471/workspace/aiatul-api-testing/collection/39619510-ab26644e-57c4-4100-90ce-9b5e21b8f088?action=share&source=collection_link&creator=39619510"
+	},
+	"item": [
+		{
+			"name": "Create Booking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var firstname = pm.variables.replaceIn(\"{{$randomFirstName}}\")\r",
+							"pm.environment.set(\"firstname\", firstname)\r",
+							"\r",
+							"\r",
+							"var lastname = pm.variables.replaceIn(\"{{$randomLastName}}\")\r",
+							"pm.environment.set(\"lastname\", lastname)\r",
+							"\r",
+							"var totalprice = pm.variables.replaceIn(\"{{$randomInt}}\")\r",
+							"pm.environment.set(\"totalprice\", totalprice)\r",
+							"\r",
+							"var depositpaid = pm.variables.replaceIn(\"{{$randomBoolean}}\")\r",
+							"pm.environment.set(\"depositpaid\", depositpaid)\r",
+							"\r",
+							"\r",
+							"//Date\r",
+							"\r",
+							"const moment = require('moment')\r",
+							"var checkin = moment().format('YYYY-MM-DD')\r",
+							"var checkout = moment().add(7, 'd').format('YYYY-MM-DD')\r",
+							"\r",
+							"pm.environment.set(\"checkin\", checkin)\r",
+							"pm.environment.set(\"checkout\", checkout)\r",
+							"\r",
+							"\r",
+							"// Define the array of possible values\r",
+							"var additionalNeedsOptions = [\"Breakfast\", \"Lunch\", \"Dinner\"];\r",
+							"\r",
+							"// Store the full array for validation in tests\r",
+							"pm.environment.set(\"additionalneeds\", JSON.stringify(additionalNeedsOptions));\r",
+							"\r",
+							"// Randomly select one option\r",
+							"var randomIndex = Math.floor(Math.random() * additionalNeedsOptions.length);\r",
+							"var selectedNeed = additionalNeedsOptions[randomIndex];\r",
+							"\r",
+							"// Store the selected value to use in request body\r",
+							"pm.environment.set(\"selectedNeed\", selectedNeed);\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"console.log(\"First Name: \" + firstname)\r",
+							"console.log(lastname)\r",
+							"console.log(totalprice)\r",
+							"console.log(depositpaid)\r",
+							"console.log(checkin)\r",
+							"console.log(checkout)\r",
+							"console.log(selectedNeed);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.environment.set(\"post_bookingid\",jsonData.bookingid)\r",
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has required fields: bookingid and booking\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('bookingid', 'booking');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Firstname and lastname must be non-empty strings\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.booking).to.exist;",
+							"    ",
+							"    const booking = responseData.booking;",
+							"    ",
+							"    pm.expect(booking.firstname).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Firstname should not be empty\");",
+							"    pm.expect(booking.lastname).to.exist.and.to.be.a('string').and.to.have.lengthOf.at.least(1, \"Lastname should not be empty\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Totalprice must be a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.booking.totalprice).to.be.a('number').and.to.be.at.least(0, \"Totalprice should be a non-negative integer\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Checkin and checkout dates are in a valid date format\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.booking).to.exist;",
+							"",
+							"    const checkinDate = responseData.booking.bookingdates.checkin;",
+							"    const checkoutDate = responseData.booking.bookingdates.checkout;",
+							"",
+							"    // A simple regex to test for valid date format (YYYY-MM-DD)",
+							"    const dateFormatRegex = /^\\d{4}-\\d{2}-\\d{2}$/;",
+							"",
+							"    pm.expect(checkinDate).to.match(dateFormatRegex, \"Checkin date is not in a valid format\");",
+							"    pm.expect(checkoutDate).to.match(dateFormatRegex, \"Checkout date is not in a valid format\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"firstname\" : \"{{firstname}}\",\r\n\t\"lastname\" : \"{{lastname}}\",\r\n\t\"totalprice\" : {{totalprice}},\r\n\t\"depositpaid\" : {{depositpaid}},\r\n\t\"bookingdates\" : {\r\n    \t\"checkin\" : \"{{checkin}}\",\r\n    \t\"checkout\" : \"{{checkout}}\"\r\n\t},\r\n\t\"additionalneeds\" : \"{{selectedNeed}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/booking",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking"
+					]
+				},
+				"description": "To create a new booking"
+			},
+			"response": [
+				{
+					"name": "Create Booking",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"firstname\" : \"{{firstname}}\",\r\n\t\"lastname\" : \"{{lastname}}\",\r\n\t\"totalprice\" : {{totalprice}},\r\n\t\"depositpaid\" : {{depositpaid}},\r\n\t\"bookingdates\" : {\r\n    \t\"checkin\" : \"{{checkin}}\",\r\n    \t\"checkout\" : \"{{checkout}}\"\r\n\t},\r\n\t\"additionalneeds\" : \"{{selectedNeed}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/booking",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "204"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:55:18 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"cc-je8tLWw+gSfmXaiKd8GQse5kx1c\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=o59qEvCN3jzzcc2BWSkxVdjPOUR3cvJW5PAjA0m6pGM%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794518\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=o59qEvCN3jzzcc2BWSkxVdjPOUR3cvJW5PAjA0m6pGM%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794518\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"bookingid\": 2172,\n    \"booking\": {\n        \"firstname\": \"Ruthie\",\n        \"lastname\": \"Wilderman\",\n        \"totalprice\": 68,\n        \"depositpaid\": false,\n        \"bookingdates\": {\n            \"checkin\": \"2025-08-10\",\n            \"checkout\": \"2025-08-17\"\n        },\n        \"additionalneeds\": \"Breakfast\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Booking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var statusCode = pm.response.code;\r",
+							"console.log(statusCode)\r",
+							"\r",
+							"if (statusCode == 200){\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"// First Name\r",
+							"pm.test(\"First Name Validation\", function () {\r",
+							"    pm.expect(jsonData.firstname).to.eql(pm.environment.get(\"firstname\"));\r",
+							"});\r",
+							"\r",
+							"// Last Name\r",
+							"pm.test(\"Last Name Validation\", function () {\r",
+							"    pm.expect(jsonData.lastname).to.eql(pm.environment.get(\"lastname\"));\r",
+							"});\r",
+							"\r",
+							"// Total Price\r",
+							"pm.test(\"Total Price Validation\", function () {\r",
+							"    pm.expect(jsonData.totalprice).to.eql(parseInt(pm.environment.get(\"totalprice\")));\r",
+							"});\r",
+							"\r",
+							"// Deposit Paid\r",
+							"pm.test(\"Deposit Paid Validation\", function () {\r",
+							"    pm.expect(jsonData.depositpaid).to.eql(pm.environment.get(\"depositpaid\") === \"true\");\r",
+							"});\r",
+							"\r",
+							"// Check-in Date\r",
+							"pm.test(\"Check-in Date Validation\", function () {\r",
+							"    pm.expect(jsonData.bookingdates.checkin).to.eql(pm.environment.get(\"checkin\"));\r",
+							"});\r",
+							"\r",
+							"// Check-out Date\r",
+							"pm.test(\"Check-out Date Validation\", function () {\r",
+							"    pm.expect(jsonData.bookingdates.checkout).to.eql(pm.environment.get(\"checkout\"));\r",
+							"});\r",
+							"\r",
+							"// Additional Needs\r",
+							"pm.test(\"Additional Needs Validation\", function () {\r",
+							"    pm.expect(jsonData.additionalneeds).to.eql(pm.environment.get(\"selectedNeed\"));\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							"else if(statusCode == 400) {\r",
+							"\r",
+							"pm.test(\"Status Code 400, Not Found\") \r",
+							"\r",
+							"}else{\r",
+							"    pm.test(\"Something went Wrong\")\r",
+							"}\r",
+							"",
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response contains required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('firstname', 'lastname', 'totalprice', 'depositpaid', 'bookingdates', 'additionalneeds');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Total price is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.totalprice).to.be.a('number').and.to.be.at.least(0, \"Total price should be a non-negative integer\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Deposit paid should be a boolean value\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.have.property('depositpaid').that.is.a('boolean');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Check-in and check-out dates are in a valid date format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    ",
+							"    const checkinDate = responseData.bookingdates.checkin;",
+							"    const checkoutDate = responseData.bookingdates.checkout;",
+							"    ",
+							"    const isValidDate = (date) => !isNaN(Date.parse(date));",
+							"    ",
+							"    pm.expect(isValidDate(checkinDate)).to.be.true;",
+							"    pm.expect(isValidDate(checkoutDate)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/booking/{{post_bookingid}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking",
+						"{{post_bookingid}}"
+					]
+				},
+				"description": "To retrieve booking details by ID"
+			},
+			"response": [
+				{
+					"name": "Get Booking",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/booking/{{post_bookingid}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking",
+								"{{post_bookingid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "175"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:57:13 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"af-UYH9DOvZmKe7Y503z69gXciNuUc\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=Iaqv4lFCuTT1qTb7FMiSAvNEd9AP8RVQKeRIyA4GFSo%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794633\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=Iaqv4lFCuTT1qTb7FMiSAvNEd9AP8RVQKeRIyA4GFSo%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794633\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"firstname\": \"Ruthie\",\n    \"lastname\": \"Wilderman\",\n    \"totalprice\": 68,\n    \"depositpaid\": false,\n    \"bookingdates\": {\n        \"checkin\": \"2025-08-10\",\n        \"checkout\": \"2025-08-17\"\n    },\n    \"additionalneeds\": \"Breakfast\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json()\r",
+							"\r",
+							"pm.environment.set(\"post_token\",jsonData.token)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"username\": \"admin\",\r\n\t\"password\": \"password123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth"
+					]
+				},
+				"description": "To create a token for authentication"
+			},
+			"response": [
+				{
+					"name": "Token",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"username\": \"admin\",\r\n\t\"password\": \"password123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "27"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:57:21 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"1b-YDXFvIeJpjC7+ujSKyyL6iDcZ0A\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=%2BWVJm5yJBIj%2B6SOfFuUsGxPT%2BMbU24scyBc5KDUtzGI%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794641\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=%2BWVJm5yJBIj%2B6SOfFuUsGxPT%2BMbU24scyBc5KDUtzGI%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794641\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"token\": \"5a6c250a6306b41\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Update Booking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var update_firstname = pm.variables.replaceIn(\"{{$randomFirstName}}\")\r",
+							"pm.environment.set(\"firstname\", update_firstname)\r",
+							"\r",
+							"\r",
+							"var update_lastname = pm.variables.replaceIn(\"{{$randomLastName}}\")\r",
+							"pm.environment.set(\"lastname\", update_lastname)\r",
+							"\r",
+							"var update_totalprice = pm.variables.replaceIn(\"{{$randomInt}}\")\r",
+							"pm.environment.set(\"totalprice\", update_totalprice)\r",
+							"\r",
+							"var update_depositpaid = pm.variables.replaceIn(\"{{$randomBoolean}}\")\r",
+							"pm.environment.set(\"depositpaid\", update_depositpaid)\r",
+							"\r",
+							"\r",
+							"//Date\r",
+							"\r",
+							"const moment = require('moment')\r",
+							"var update_checkin = moment().format('YYYY-MM-DD')\r",
+							"var update_checkout = moment().add(7, 'd').format('YYYY-MM-DD')\r",
+							"\r",
+							"pm.environment.set(\"checkin\", update_checkin)\r",
+							"pm.environment.set(\"checkout\", update_checkout)\r",
+							"\r",
+							"\r",
+							"// Define the array of possible values\r",
+							"var update_additionalNeedsOptions = [\"Breakfast\", \"Lunch\", \"Dinner\"];\r",
+							"\r",
+							"// Store the full array for validation in tests\r",
+							"pm.environment.set(\"additionalneeds\", JSON.stringify(update_additionalNeedsOptions));\r",
+							"\r",
+							"// Randomly select one option\r",
+							"var randomIndex = Math.floor(Math.random() * update_additionalNeedsOptions.length);\r",
+							"var update_selectedNeed = update_additionalNeedsOptions[randomIndex];\r",
+							"\r",
+							"// Store the selected value to use in request body\r",
+							"pm.environment.set(\"selectedNeed\", update_selectedNeed);\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.include.all.keys('firstname', 'lastname', 'totalprice', 'depositpaid', 'bookingdates', 'additionalneeds');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Total price is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.totalprice).to.be.a('number').and.to.be.at.least(0, \"Total price should be a non-negative integer\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Deposit paid must be a boolean value\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.depositpaid).to.be.a('boolean');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Check-in and Check-out dates must be in a valid date format\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    ",
+							"    const checkinDate = responseData.bookingdates.checkin;",
+							"    const checkoutDate = responseData.bookingdates.checkout;",
+							"    ",
+							"    const isValidDate = (dateString) => {",
+							"        const regex = /^\\d{4}-\\d{2}-\\d{2}$/; // YYYY-MM-DD format",
+							"        return regex.test(dateString) && !isNaN(new Date(dateString).getTime());",
+							"    };",
+							"",
+							"    pm.expect(isValidDate(checkinDate)).to.be.true;",
+							"    pm.expect(isValidDate(checkoutDate)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{post_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstname\": \"{{firstname}}\",\r\n    \"lastname\": \"{{lastname}}\",\r\n    \"totalprice\": \"{{totalprice}}\",\r\n    \"depositpaid\": \"{{depositpaid}}\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"{{checkin}}\",\r\n        \"checkout\": \"{{checkout}}\"\r\n    },\r\n    \r\n     \"additionalneeds\": \"{{selectedNeed}}\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/booking/{{post_bookingid}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking",
+						"{{post_bookingid}}"
+					]
+				},
+				"description": "To update booking details by ID"
+			},
+			"response": [
+				{
+					"name": "Update Booking",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token={{post_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"{{firstname}}\",\r\n    \"lastname\": \"{{lastname}}\",\r\n    \"totalprice\": \"{{totalprice}}\",\r\n    \"depositpaid\": \"{{depositpaid}}\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"{{checkin}}\",\r\n        \"checkout\": \"{{checkout}}\"\r\n    },\r\n    \r\n     \"additionalneeds\": \"{{selectedNeed}}\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{post_bookingid}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking",
+								"{{post_bookingid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "167"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:57:28 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"a7-0rayJE8WtKluEFAnauMMoV1UGvU\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=z6C%2FX6qmbrmsxgfZ%2FmBtjvE7f1SDTL2rO5RHvjCGcRM%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794648\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=z6C%2FX6qmbrmsxgfZ%2FmBtjvE7f1SDTL2rO5RHvjCGcRM%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794648\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"firstname\": \"Jailyn\",\n    \"lastname\": \"Hane\",\n    \"totalprice\": 817,\n    \"depositpaid\": true,\n    \"bookingdates\": {\n        \"checkin\": \"2025-08-10\",\n        \"checkout\": \"2025-08-17\"\n    },\n    \"additionalneeds\": \"Dinner\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Verify After Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var isOkay_updated = pm.response.json();\r",
+							"\r",
+							"pm.test(\"First Name Okay\", function () {\r",
+							"    pm.expect(isOkay_updated.firstname).to.eql(pm.environment.get(\"firstname\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Last Name Okay\", function () {\r",
+							"    pm.expect(isOkay_updated.lastname).to.eql(pm.environment.get(\"lastname\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Total Price Okay\", function () {\r",
+							"    const new_expectedTotalPrice = Number(pm.environment.get(\"totalprice\"));\r",
+							"    pm.expect(isOkay_updated.totalprice).to.eql(new_expectedTotalPrice);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//pm.test(\"Deposit Paid Okay\", function () {\r",
+							"    // If depositpaid is boolean, convert string to boolean\r",
+							"    //const new_depositPaidEnv = pm.environment.get(\"depositpaid\");\r",
+							"    ///const new_expectedDepositPaid = new_depositPaidEnv === 'true' ? true : /new_depositPaidEnv === 'false' ? false : new_depositPaidEnv;\r",
+							"    //pm.expect(isOkay_updated.new_depositpaid).to.eql(expectedDepositPaid);\r",
+							"//});\r",
+							"\r",
+							"// Deposit Paid\r",
+							"pm.test(\"Deposit Paid Validation\", function () {\r",
+							"    pm.expect(isOkay_updated.depositpaid).to.eql(pm.environment.get(\"depositpaid\") === \"true\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Checkin Date Okay\", function () {\r",
+							"    pm.expect(isOkay_updated.bookingdates.checkin).to.eql(pm.environment.get(\"checkin\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Checkout Date Okay\", function () {\r",
+							"    pm.expect(isOkay_updated.bookingdates.checkout).to.eql(pm.environment.get(\"checkout\"));\r",
+							"});\r",
+							"\r",
+							"// For additionalneeds test\r",
+							"pm.test(\"Additional Needs Okay\", function () {\r",
+							"    const allowedNeeds = JSON.parse(pm.environment.get(\"additionalneeds\"));\r",
+							"    pm.expect(allowedNeeds).to.include(isOkay_updated.additionalneeds);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/booking/{{post_bookingid}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking",
+						"{{post_bookingid}}"
+					]
+				},
+				"description": "To update booking details by ID"
+			},
+			"response": [
+				{
+					"name": "Verify After Update",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{post_bookingid}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking",
+								"{{post_bookingid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "167"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:57:35 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"a7-0rayJE8WtKluEFAnauMMoV1UGvU\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=TQkahCjxYzXJrZ0omEORaj7MkAuRtrlIjxK0tNJemBw%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794655\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=TQkahCjxYzXJrZ0omEORaj7MkAuRtrlIjxK0tNJemBw%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794655\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"firstname\": \"Jailyn\",\n    \"lastname\": \"Hane\",\n    \"totalprice\": 817,\n    \"depositpaid\": true,\n    \"bookingdates\": {\n        \"checkin\": \"2025-08-10\",\n        \"checkout\": \"2025-08-17\"\n    },\n    \"additionalneeds\": \"Dinner\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Patch Booking",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"\r",
+							"var v2_totalprice = pm.variables.replaceIn(\"{{$randomInt}}\")\r",
+							"pm.environment.set(\"totalprice\", v2_totalprice)\r",
+							"\r",
+							"//Date\r",
+							"\r",
+							"const moment = require('moment')\r",
+							"var v2_checkin = moment().format('YYYY-MM-DD')\r",
+							"var v2_checkout = moment().add(7, 'd').format('YYYY-MM-DD')\r",
+							"\r",
+							"pm.environment.set(\"checkin\", v2_checkin)\r",
+							"pm.environment.set(\"checkout\", v2_checkout)\r",
+							"\r",
+							"\r",
+							"// Define the array of possible values\r",
+							"var v2_additionalNeedsOptions = [\"Breakfast\", \"Lunch\", \"Dinner\"];\r",
+							"\r",
+							"// Store the full array for validation in tests\r",
+							"pm.environment.set(\"additionalneeds\", JSON.stringify(v2_additionalNeedsOptions));\r",
+							"\r",
+							"// Randomly select one option\r",
+							"var randomIndex = Math.floor(Math.random() * v2_additionalNeedsOptions.length);\r",
+							"var v2_selectedNeed = v2_additionalNeedsOptions[randomIndex];\r",
+							"\r",
+							"// Store the selected value to use in request body\r",
+							"pm.environment.set(\"selectedNeed\", v2_selectedNeed);\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.expect(pm.response.code).to.eql(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData).to.have.all.keys('firstname', 'lastname', 'totalprice', 'depositpaid', 'bookingdates', 'additionalneeds');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Total price is a non-negative integer\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.totalprice).to.exist.and.to.be.a('number').and.to.be.at.least(0, \"Total price should be a non-negative integer\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Deposit paid should be a boolean value\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.depositpaid).to.be.a('boolean');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Booking dates contain valid check-in and check-out date formats\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData).to.be.an('object');",
+							"    pm.expect(responseData.bookingdates).to.exist;",
+							"",
+							"    const checkinDate = responseData.bookingdates.checkin;",
+							"    const checkoutDate = responseData.bookingdates.checkout;",
+							"",
+							"    pm.expect(checkinDate).to.match(/^\\d{4}-\\d{2}-\\d{2}$/, \"Check-in date should be in 'YYYY-MM-DD' format\");",
+							"    pm.expect(checkoutDate).to.match(/^\\d{4}-\\d{2}-\\d{2}$/, \"Check-out date should be in 'YYYY-MM-DD' format\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{post_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstname\": \"{{firstname}}\",\r\n    \"lastname\": \"{{lastname}}\",\r\n    \"totalprice\": \"{{totalprice}}\",\r\n    \"depositpaid\": \"{{depositpaid}}\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"{{checkin}}\",\r\n        \"checkout\": \"{{checkout}}\"\r\n    },\r\n    \r\n     \"additionalneeds\": \"{{selectedNeed}}\"\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/booking/{{post_bookingid}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking",
+						"{{post_bookingid}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Patch Booking",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token={{post_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"{{firstname}}\",\r\n    \"lastname\": \"{{lastname}}\",\r\n    \"totalprice\": \"{{totalprice}}\",\r\n    \"depositpaid\": \"{{depositpaid}}\",\r\n    \"bookingdates\": {\r\n        \"checkin\": \"{{checkin}}\",\r\n        \"checkout\": \"{{checkout}}\"\r\n    },\r\n    \r\n     \"additionalneeds\": \"{{selectedNeed}}\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{post_bookingid}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking",
+								"{{post_bookingid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "166"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:57:42 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"a6-EjNynbvR9R5SULdPs4YWtpcn+us\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=joX4IQJgStXJQlWRHBb4jQ9vazKPWePXvxpv2C2DBOM%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794662\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=joX4IQJgStXJQlWRHBb4jQ9vazKPWePXvxpv2C2DBOM%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794662\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"firstname\": \"Jailyn\",\n    \"lastname\": \"Hane\",\n    \"totalprice\": 786,\n    \"depositpaid\": true,\n    \"bookingdates\": {\n        \"checkin\": \"2025-08-10\",\n        \"checkout\": \"2025-08-17\"\n    },\n    \"additionalneeds\": \"Lunch\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Verify After PATCH",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var verifyAfterPatch = pm.response.json();\r",
+							"\r",
+							"pm.test(\"First Name Okay\", function () {\r",
+							"    pm.expect(verifyAfterPatch.firstname).to.eql(pm.environment.get(\"firstname\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Last Name Okay\", function () {\r",
+							"    pm.expect(verifyAfterPatch.lastname).to.eql(pm.environment.get(\"lastname\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Total Price Okay\", function () {\r",
+							"    const new_expectedTotalPrice = Number(pm.environment.get(\"totalprice\"));\r",
+							"    pm.expect(verifyAfterPatch.totalprice).to.eql(new_expectedTotalPrice);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"// Deposit Paid\r",
+							"pm.test(\"Deposit Paid Validation\", function () {\r",
+							"    pm.expect(verifyAfterPatch.depositpaid).to.eql(pm.environment.get(\"depositpaid\") === \"true\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Checkin Date Okay\", function () {\r",
+							"    pm.expect(verifyAfterPatch.bookingdates.checkin).to.eql(pm.environment.get(\"checkin\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Checkout Date Okay\", function () {\r",
+							"    pm.expect(verifyAfterPatch.bookingdates.checkout).to.eql(pm.environment.get(\"checkout\"));\r",
+							"});\r",
+							"\r",
+							"// For additionalneeds test\r",
+							"pm.test(\"Additional Needs Okay\", function () {\r",
+							"    const allowedNeeds = JSON.parse(pm.environment.get(\"additionalneeds\"));\r",
+							"    pm.expect(allowedNeeds).to.include(verifyAfterPatch.additionalneeds);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/booking/{{post_bookingid}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking",
+						"{{post_bookingid}}"
+					]
+				},
+				"description": "To update booking details by ID after patch"
+			},
+			"response": [
+				{
+					"name": "Verify After PATCH",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{post_bookingid}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking",
+								"{{post_bookingid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "166"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:57:53 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"a6-EjNynbvR9R5SULdPs4YWtpcn+us\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=G5JPoI95A%2BYeSSlXYHk%2Bn6FBgfglnOdZ9rdiqWJFUKc%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794673\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=G5JPoI95A%2BYeSSlXYHk%2Bn6FBgfglnOdZ9rdiqWJFUKc%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794673\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"firstname\": \"Jailyn\",\n    \"lastname\": \"Hane\",\n    \"totalprice\": 786,\n    \"depositpaid\": true,\n    \"bookingdates\": {\n        \"checkin\": \"2025-08-10\",\n        \"checkout\": \"2025-08-17\"\n    },\n    \"additionalneeds\": \"Lunch\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{post_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base_url}}/booking/{{post_bookingid}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"booking",
+						"{{post_bookingid}}"
+					]
+				},
+				"description": "To delete booking record"
+			},
+			"response": [
+				{
+					"name": "v2 Request",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token={{post_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/booking/{{post_bookingid}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"booking",
+								"{{post_bookingid}}"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "7"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Aug 2025 02:58:01 GMT"
+						},
+						{
+							"key": "Etag",
+							"value": "W/\"7-rM9AyJuqT6iOan/xHh+AW+7K/T8\""
+						},
+						{
+							"key": "Nel",
+							"value": "{\"report_to\":\"heroku-nel\",\"response_headers\":[\"Via\"],\"max_age\":3600,\"success_fraction\":0.01,\"failure_fraction\":0.1}"
+						},
+						{
+							"key": "Report-To",
+							"value": "{\"group\":\"heroku-nel\",\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?s=DAciKNfMYZBtvP1Df3ePrylfd9coQtxMOxosWVxQktg%3D\\u0026sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add\\u0026ts=1754794681\"}],\"max_age\":3600}"
+						},
+						{
+							"key": "Reporting-Endpoints",
+							"value": "heroku-nel=\"https://nel.heroku.com/reports?s=DAciKNfMYZBtvP1Df3ePrylfd9coQtxMOxosWVxQktg%3D&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&ts=1754794681\""
+						},
+						{
+							"key": "Server",
+							"value": "Heroku"
+						},
+						{
+							"key": "Via",
+							"value": "1.1 heroku-router"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express"
+						}
+					],
+					"cookie": [],
+					"body": "Created"
+				}
+			]
+		}
+	]
+}
