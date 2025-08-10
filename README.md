@@ -10,6 +10,7 @@ This project demonstrate automated API testing using **Postman** and **Newman**,
 - 🔄 Pre-request scripts for dynamic data generation
 - 🧾 Test scripts for assertions and validations
 - 📊 HTML reports with enhanced visualization
+- 🔁 Randomized data for each iteration to simulate dynamic real-world scenarios
 
 ## 📚 API Documentation
 
